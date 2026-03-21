@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "620099384375",
+    "project_id": "sleep-apena",
+    "storage_bucket": "sleep-apena.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:620099384375:android:15a9f1c74668bd4e293bb2",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAWq65H8fITkwB6EAVDOX_IjDx5RNwxzlw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
