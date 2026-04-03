@@ -1,6 +1,5 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
 
 class ReportScreen extends StatelessWidget {
   const ReportScreen({super.key});
@@ -14,174 +13,194 @@ class ReportScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sleep Reports'),
-        backgroundColor: const Color(0xFF020617),
-        foregroundColor: Colors.white,
-      ),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Color(0xFF020617),
-              Color(0xFF020617),
-              Color(0xFF0A1A2F),
-            ],
+            colors: [Color(0xFF020617), Color(0xFF0A1628)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
         ),
         child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                const _GlassCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Last Night',
+          child: Column(
+            children: [
+              // ── AppBar ──
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 8, 24, 0),
+                child: Row(
+                  children: [
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                          color: AppColors.primaryLight, size: 20),
+                    ),
+                    const Expanded(
+                      child: Text(
+                        'Sleep Reports',
+                        textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                      SizedBox(height: 12),
-                      _SummaryRow(
-                        icon: Icons.bedtime,
-                        label: 'Sleep Time',
-                        value: '6h 42m',
-                      ),
-                      SizedBox(height: 8),
-                      _SummaryRow(
-                        icon: Icons.warning_amber_rounded,
-                        label: 'Apnea Events',
-                        value: '2',
-                      ),
-                      SizedBox(height: 8),
-                      _SummaryRow(
-                        icon: Icons.thumb_up_alt_outlined,
-                        label: 'Sleep Quality',
-                        value: 'Good',
-                      ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 44),
+                  ],
                 ),
-                const SizedBox(height: 16),
-                Expanded(
-                  child: ListView.separated(
-                    itemCount: reports.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
-                    itemBuilder: (context, index) {
-                      final r = reports[index];
-                      final status = _statusForApnea(r.apneaEvents);
-                      return _GlassCard(
-                        child: Row(
+              ),
+
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 8),
+
+                      // ── Last Night summary card ──
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20),
+                        decoration: AppDecorations.glassCard(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(
-                              width: 44,
-                              height: 44,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF2563EB)
-                                    .withValues(alpha: 0.16),
-                                borderRadius: BorderRadius.circular(14),
-                                border: Border.all(
-                                  color: const Color(0xFF60A5FA)
-                                      .withValues(alpha: 0.22),
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: AppDecorations.iconBadge(),
+                                  child: const Icon(
+                                    Icons.nights_stay_rounded,
+                                    color: AppColors.primaryLight,
+                                    size: 18,
+                                  ),
                                 ),
-                              ),
-                              child: Icon(
-                                status.icon,
-                                color: status.color,
-                              ),
+                                const SizedBox(width: 12),
+                                const Text(
+                                  'Last Night',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 14),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    r.date,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Sleep Time: ${r.sleepTime}',
-                                    style: const TextStyle(
-                                      color: Color(0xFFCBD5E1),
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Apnea Events: ${r.apneaEvents}',
-                                    style: const TextStyle(
-                                      color: Color(0xFFCBD5E1),
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                            const SizedBox(height: 18),
+                            const _SummaryRow(
+                              icon: Icons.bedtime_outlined,
+                              label: 'Sleep Time',
+                              value: '6h 42m',
                             ),
-                            Icon(
-                              Icons.chevron_right,
-                              color: const Color(0xFF93C5FD)
-                                  .withValues(alpha: 0.9),
+                            const SizedBox(height: 12),
+                            const _SummaryRow(
+                              icon: Icons.monitor_heart_outlined,
+                              label: 'Apnea Events',
+                              value: '2',
+                            ),
+                            const SizedBox(height: 12),
+                            const _SummaryRow(
+                              icon: Icons.thumb_up_alt_outlined,
+                              label: 'Sleep Quality',
+                              value: 'Good',
                             ),
                           ],
                         ),
-                      );
-                    },
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // ── Section label ──
+                      const Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'HISTORY',
+                          style: TextStyle(
+                            color: AppColors.onMuted,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1.5,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      // ── History list ──
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: reports.length,
+                        separatorBuilder: (_, __) =>
+                            const SizedBox(height: 12),
+                        itemBuilder: (context, index) {
+                          final r = reports[index];
+                          final status = _statusForApnea(r.apneaEvents);
+                          return Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: AppDecorations.glassCard(),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 44,
+                                  height: 44,
+                                  decoration: BoxDecoration(
+                                    color: status.color.withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color:
+                                          status.color.withValues(alpha: 0.25),
+                                    ),
+                                  ),
+                                  child: Icon(
+                                    status.icon,
+                                    color: status.color,
+                                    size: 20,
+                                  ),
+                                ),
+                                const SizedBox(width: 14),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        r.date,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        '🛏  ${r.sleepTime}   •   ⚠ ${r.apneaEvents} events',
+                                        style: const TextStyle(
+                                          color: AppColors.onSurface,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.chevron_right,
+                                  color: AppColors.primaryLight.withValues(alpha: 0.7),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+
+                      const SizedBox(height: 20),
+                    ],
                   ),
                 ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _GlassCard extends StatelessWidget {
-  const _GlassCard({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(18),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Colors.white.withValues(alpha: 0.08),
-                Colors.white.withValues(alpha: 0.03),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF2563EB).withValues(alpha: 0.10),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
               ),
             ],
           ),
-          child: child,
         ),
       ),
     );
@@ -203,15 +222,15 @@ class _SummaryRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, color: const Color(0xFF93C5FD)),
-        const SizedBox(width: 10),
+        Icon(icon, color: AppColors.primaryLight, size: 18),
+        const SizedBox(width: 12),
         Expanded(
           child: Text(
             label,
             style: const TextStyle(
-              color: Color(0xFFCBD5E1),
+              color: AppColors.onSurface,
               fontSize: 13,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ),
@@ -248,15 +267,8 @@ class _Status {
 }
 
 _Status _statusForApnea(int apnea) {
-  if (apnea == 0) {
-    return const _Status(Icons.check_circle_outline, Color(0xFF22C55E));
-  }
-  if (apnea <= 1) {
-    return const _Status(Icons.info_outline, Color(0xFF60A5FA));
-  }
-  if (apnea <= 2) {
-    return const _Status(Icons.warning_amber_rounded, Color(0xFFF59E0B));
-  }
-  return const _Status(Icons.error_outline, Color(0xFFEF4444));
+  if (apnea == 0) return const _Status(Icons.check_circle_outline, AppColors.riskNormal);
+  if (apnea <= 1) return const _Status(Icons.info_outline, AppColors.primaryLight);
+  if (apnea <= 2) return const _Status(Icons.warning_amber_rounded, AppColors.riskMild);
+  return const _Status(Icons.error_outline, AppColors.riskSevere);
 }
-

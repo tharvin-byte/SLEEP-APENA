@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../theme/app_theme.dart';
 import 'signup_screen.dart';
 import 'forgot_password_screen.dart';
 import 'home_screen.dart';
@@ -12,9 +13,10 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  bool _obscurePassword = true;
+  bool _isLoading = false;
 
   Future<void> _signIn() async {
     final email = emailController.text.trim();
@@ -25,8 +27,11 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
+    setState(() => _isLoading = true);
+
     try {
-      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+      UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -34,7 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
       User? user = userCredential.user;
       if (user != null) {
         await user.reload();
-        
+
         if (user.emailVerified) {
           Navigator.pushReplacement(
             context,
@@ -71,281 +76,259 @@ class _LoginScreenState extends State<LoginScreen> {
       _showError(errorMessage);
     } catch (e) {
       _showError('An error occurred: $e');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
+        content: Row(
+          children: [
+            const Icon(Icons.error_outline, color: AppColors.danger, size: 18),
+            const SizedBox(width: 10),
+            Expanded(child: Text(message)),
+          ],
+        ),
       ),
     );
   }
 
   @override
-  Widget build(BuildContext context) {
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-
-          /// BACKGROUND GRADIENT
+          // Background gradient
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [
-                  Color(0xFF020617),
-                  Color(0xFF020617),
-                  Color(0xFF0A1A2F)
-                ],
+                colors: [Color(0xFF020617), Color(0xFF0A1628)],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
             ),
           ),
 
-          /// GRID BACKGROUND
-          CustomPaint(
-            size: Size.infinite,
-            painter: GridPainter(),
-          ),
+          // Subtle grid
+          CustomPaint(size: Size.infinite, painter: _GridPainter()),
 
-          /// MAIN UI
+          // Main UI
           SafeArea(
             child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 28),
+              padding: const EdgeInsets.symmetric(horizontal: 28),
+              child: Column(
+                children: [
+                  const SizedBox(height: 56),
 
-                child: Column(
-                  children: [
-
-                    const SizedBox(height: 70),
-
-                    /// LOGO
-                    Image.asset(
-                      "assets/images/sleeplogo.png",
-                      height: 80,
+                  // ── Logo ──
+                  Image.asset('assets/images/sleeplogo.png', height: 72),
+                  const SizedBox(height: 14),
+                  const Text(
+                    'SleepGuard',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 26,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1,
                     ),
+                  ),
+                  const SizedBox(height: 6),
+                  const Text(
+                    'AI Sleep Apnea Monitoring',
+                    style: TextStyle(color: AppColors.onMuted, fontSize: 13),
+                  ),
 
-                    const SizedBox(height: 15),
+                  const SizedBox(height: 44),
 
-                    const Text(
-                      "SLEEPGUARD",
+                  // ── Section label ──
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Sign In',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 28,
-                        letterSpacing: 4,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
+                  ),
+                  const SizedBox(height: 6),
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Welcome back! Enter your credentials.',
+                      style: TextStyle(color: AppColors.onMuted, fontSize: 13),
+                    ),
+                  ),
 
-                    const SizedBox(height: 6),
+                  const SizedBox(height: 28),
 
-                    const Text(
-                      "AI Sleep Apnea Monitoring",
-                      style: TextStyle(
-                        color: Color(0xFF94A3B8),
-                        fontSize: 14,
+                  // ── Email ──
+                  TextField(
+                    controller: emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    style: const TextStyle(color: Colors.white, fontSize: 15),
+                    decoration: const InputDecoration(
+                      prefixIcon: Icon(Icons.email_outlined),
+                      hintText: 'Email address',
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // ── Password ──
+                  TextField(
+                    controller: passwordController,
+                    obscureText: _obscurePassword,
+                    style: const TextStyle(color: Colors.white, fontSize: 15),
+                    decoration: InputDecoration(
+                      prefixIcon: const Icon(Icons.lock_outline),
+                      hintText: 'Password',
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
+                          color: AppColors.onMuted,
+                          size: 20,
+                        ),
+                        onPressed: () =>
+                            setState(() => _obscurePassword = !_obscurePassword),
                       ),
                     ),
+                  ),
 
-                    const SizedBox(height: 45),
-
-                    /// SIGN IN
-                    const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        "SIGN IN",
+                  // ── Forgot password ──
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ForgotPasswordScreen(),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        'Forgot Password?',
                         style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          letterSpacing: 2,
-                          fontWeight: FontWeight.w600,
+                          color: AppColors.primaryLight,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
+                  ),
 
-                    const SizedBox(height: 25),
+                  const SizedBox(height: 4),
 
-                    /// EMAIL FIELD
-                    TextField(
-                      controller: emailController,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.email, color: Colors.blue),
-                        hintText: "user@sleepguard.ai",
-                        hintStyle: const TextStyle(color: Colors.grey),
-                        filled: true,
-                        fillColor: const Color(0xFF0F172A),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide.none,
+                  // ── Login button ──
+                  SizedBox(
+                    width: double.infinity,
+                    height: 54,
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _signIn,
+                      child: _isLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.5,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text('Sign In'),
+                    ),
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  // ── Divider ──
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Divider(
+                          color: AppColors.border.withValues(alpha: 0.6),
                         ),
                       ),
-                    ),
-
-                    const SizedBox(height: 18),
-
-                    /// PASSWORD FIELD
-                    TextField(
-                      controller: passwordController,
-                      obscureText: true,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.lock, color: Colors.blue),
-                        hintText: "Enter password",
-                        hintStyle: const TextStyle(color: Colors.grey),
-                        filled: true,
-                        fillColor: const Color(0xFF0F172A),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide.none,
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 14),
+                        child: Text(
+                          'OR',
+                          style: TextStyle(
+                            color: AppColors.onMuted,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
+                      Expanded(
+                        child: Divider(
+                          color: AppColors.border.withValues(alpha: 0.6),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // ── Google button ──
+                  SizedBox(
+                    width: double.infinity,
+                    height: 54,
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        print("Google login");
+                      },
+                      icon: const Icon(Icons.g_mobiledata_rounded, size: 22),
+                      label: const Text('Continue with Google'),
                     ),
+                  ),
 
-                    const SizedBox(height: 8),
+                  const SizedBox(height: 36),
 
-                    /// FORGOT PASSWORD
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: () {
-
+                  // ── Create account ──
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "Don't have an account? ",
+                        style:
+                            TextStyle(color: AppColors.onMuted, fontSize: 14),
+                      ),
+                      GestureDetector(
+                        onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const ForgotPasswordScreen(),
+                              builder: (context) => const SignupScreen(),
                             ),
                           );
-
                         },
                         child: const Text(
-                          "Forgot Password?",
-                          style: TextStyle(color: Colors.blueAccent),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 10),
-
-                    /// LOGIN BUTTON
-                    SizedBox(
-                      width: double.infinity,
-                      height: 55,
-
-                      child: ElevatedButton(
-
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF2563EB),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                        ),
-
-                        onPressed: _signIn,
-
-                        child: const Text(
-                          "LOGIN",
+                          'Create Account',
                           style: TextStyle(
-                            fontSize: 16,
-                            letterSpacing: 2,
+                            color: AppColors.primaryLight,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
-                    ),
+                    ],
+                  ),
 
-                    const SizedBox(height: 30),
-
-                    /// OR DIVIDER
-                    const Row(
-                      children: [
-
-                        Expanded(child: Divider(color: Colors.grey)),
-
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10),
-                          child: Text(
-                            "OR",
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        ),
-
-                        Expanded(child: Divider(color: Colors.grey)),
-
-                      ],
-                    ),
-
-                    const SizedBox(height: 25),
-
-                    /// GOOGLE LOGIN
-                    SizedBox(
-                      width: double.infinity,
-                      height: 55,
-
-                      child: OutlinedButton.icon(
-
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Colors.blueAccent),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                        ),
-
-                        onPressed: () {
-                          print("Google login");
-                        },
-
-                        icon: const Icon(Icons.login, color: Colors.white),
-
-                        label: const Text(
-                          "Continue with Google",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 35),
-
-                    /// CREATE ACCOUNT
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-
-                        const Text(
-                          "Don't have an account? ",
-                          style: TextStyle(color: Colors.grey),
-                        ),
-
-                        GestureDetector(
-                          onTap: () {
-
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const SignupScreen(),
-                              ),
-                            );
-
-                          },
-
-                          child: const Text(
-                            "Create Account",
-                            style: TextStyle(
-                              color: Colors.blueAccent,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-
-                      ],
-                    ),
-
-                    const SizedBox(height: 60),
-
-                  ],
-                ),
+                  const SizedBox(height: 40),
+                ],
               ),
             ),
           ),
@@ -355,30 +338,21 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-/// GRID PAINTER FOR BACKGROUND
-
-class GridPainter extends CustomPainter {
-
+class _GridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-
     final paint = Paint()
-      ..color = Colors.blue.withOpacity(0.05)
+      ..color = AppColors.primaryLight.withValues(alpha: 0.04)
       ..strokeWidth = 1;
-
-    const spacing = 40.0;
-
+    const spacing = 44.0;
     for (double i = 0; i < size.width; i += spacing) {
       canvas.drawLine(Offset(i, 0), Offset(i, size.height), paint);
     }
-
     for (double i = 0; i < size.height; i += spacing) {
       canvas.drawLine(Offset(0, i), Offset(size.width, i), paint);
     }
-
   }
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => false;
-
 }

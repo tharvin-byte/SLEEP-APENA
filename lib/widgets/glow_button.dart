@@ -1,78 +1,76 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
 
 class GlowButton extends StatelessWidget {
   const GlowButton({
     super.key,
     required this.text,
     required this.onPressed,
+    this.isLoading = false,
+    this.icon,
   });
 
   final String text;
   final VoidCallback onPressed;
+  final bool isLoading;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onPressed,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Container(
-            height: 58,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(18),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF2563EB).withValues(alpha: 0.45),
-                  blurRadius: 24,
-                  spreadRadius: 1,
-                  offset: const Offset(0, 12),
-                ),
-                BoxShadow(
-                  color: const Color(0xFF60A5FA).withValues(alpha: 0.22),
-                  blurRadius: 40,
-                  spreadRadius: 8,
-                ),
-              ],
-            ),
+      onTap: isLoading ? null : onPressed,
+      child: Container(
+        height: 56,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: LinearGradient(
+            colors: isLoading
+                ? [AppColors.bgCard, AppColors.bgCard]
+                : [AppColors.primary, AppColors.primaryLight],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
           ),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(18),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-              child: Container(
-                height: 58,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [
-                      Color(0xFF2563EB),
-                      Color(0xFF60A5FA),
+          boxShadow: isLoading
+              ? []
+              : [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.4),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+        ),
+        child: Center(
+          child: isLoading
+              ? const SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    color: Colors.white,
+                  ),
+                )
+              : Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (icon != null) ...[
+                      Icon(icon, color: Colors.white, size: 20),
+                      const SizedBox(width: 8),
                     ],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ),
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                child: Center(
-                  child: Text(
-                    text,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 1.6,
+                    Text(
+                      text,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.2,
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 }
-

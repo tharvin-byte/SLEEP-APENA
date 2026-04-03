@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/services/sleep_analysis.dart';
-
-// ─── Screen ──────────────────────────────────────────────────────────────────
+import 'package:flutter_application_1/theme/app_theme.dart';
 
 class ResultScreen extends StatefulWidget {
   final AnalysisResult result;
@@ -45,18 +44,16 @@ class _ResultScreenState extends State<ResultScreen>
     super.dispose();
   }
 
-  // ── Risk styling helpers ───────────────────────────────────────────────
-
   Color _riskColor(String risk) {
     switch (risk) {
       case 'Mild':
-        return const Color(0xFFFFB300);
+        return AppColors.riskMild;
       case 'Moderate':
-        return const Color(0xFFFF6D00);
+        return AppColors.riskModerate;
       case 'Severe':
-        return const Color(0xFFD50000);
+        return AppColors.riskSevere;
       default:
-        return const Color(0xFF00C853); // Normal
+        return AppColors.riskNormal;
     }
   }
 
@@ -73,8 +70,6 @@ class _ResultScreenState extends State<ResultScreen>
     }
   }
 
-  // ── Build ──────────────────────────────────────────────────────────────
-
   @override
   Widget build(BuildContext context) {
     final r = widget.result;
@@ -86,12 +81,7 @@ class _ResultScreenState extends State<ResultScreen>
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF050A18),
-              Color(0xFF0A1628),
-              Color(0xFF0D1F3C),
-            ],
-            stops: [0.0, 0.5, 1.0],
+            colors: [Color(0xFF020617), Color(0xFF0A1628), Color(0xFF0D1F3C)],
           ),
         ),
         child: SafeArea(
@@ -132,8 +122,6 @@ class _ResultScreenState extends State<ResultScreen>
     );
   }
 
-  // ── Widgets ────────────────────────────────────────────────────────────
-
   Widget _buildAppBar(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 8, 24, 0),
@@ -142,7 +130,7 @@ class _ResultScreenState extends State<ResultScreen>
           IconButton(
             onPressed: () => Navigator.pop(context),
             icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                color: Color(0xFF4FA3FF), size: 20),
+                color: AppColors.primaryLight, size: 20),
           ),
           const Expanded(
             child: Text(
@@ -152,11 +140,9 @@ class _ResultScreenState extends State<ResultScreen>
                 color: Colors.white,
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                letterSpacing: 0.2,
               ),
             ),
           ),
-          // Spacer to balance the back button
           const SizedBox(width: 40),
         ],
       ),
@@ -172,11 +158,11 @@ class _ResultScreenState extends State<ResultScreen>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            riskColor.withOpacity(0.18),
-            riskColor.withOpacity(0.06),
+            riskColor.withValues(alpha: 0.18),
+            riskColor.withValues(alpha: 0.06),
           ],
         ),
-        border: Border.all(color: riskColor.withOpacity(0.35), width: 1.5),
+        border: Border.all(color: riskColor.withValues(alpha: 0.35), width: 1.5),
       ),
       child: Column(
         children: [
@@ -196,8 +182,8 @@ class _ResultScreenState extends State<ResultScreen>
             r.apnea
                 ? 'Sleep apnea indicators detected'
                 : 'No significant apnea detected',
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.6),
+            style: const TextStyle(
+              color: AppColors.onSurface,
               fontSize: 14,
             ),
           ),
@@ -236,15 +222,13 @@ class _ResultScreenState extends State<ResultScreen>
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 18),
       decoration: BoxDecoration(
-        color: const Color(0xFF0D1F3C).withOpacity(0.8),
+        color: AppColors.bgCard,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFF1A5FBF).withOpacity(0.3),
-        ),
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.6)),
       ),
       child: Column(
         children: [
-          Icon(icon, color: const Color(0xFF4FA3FF), size: 24),
+          Icon(icon, color: AppColors.primaryLight, size: 24),
           const SizedBox(height: 10),
           Text(
             value,
@@ -258,7 +242,7 @@ class _ResultScreenState extends State<ResultScreen>
           Text(
             label,
             style: const TextStyle(
-              color: Color(0xFF6B8FBF),
+              color: AppColors.onMuted,
               fontSize: 12,
               fontWeight: FontWeight.w500,
             ),
@@ -272,11 +256,9 @@ class _ResultScreenState extends State<ResultScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF0A1628).withOpacity(0.8),
+        color: AppColors.bgMid,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFF1A5FBF).withOpacity(0.3),
-        ),
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.6)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -284,7 +266,7 @@ class _ResultScreenState extends State<ResultScreen>
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: riskColor.withOpacity(0.12),
+              color: riskColor.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(Icons.medical_information_rounded,
@@ -298,8 +280,8 @@ class _ResultScreenState extends State<ResultScreen>
                 const Text(
                   'Recommendation',
                   style: TextStyle(
-                    color: Color(0xFF6B8FBF),
-                    fontSize: 12,
+                    color: AppColors.onMuted,
+                    fontSize: 11,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.5,
                   ),
@@ -331,8 +313,8 @@ class _ResultScreenState extends State<ResultScreen>
           child: Text(
             'DETECTED EVENTS',
             style: TextStyle(
-              color: Color(0xFF6B8FBF),
-              fontSize: 12,
+              color: AppColors.onMuted,
+              fontSize: 11,
               fontWeight: FontWeight.w700,
               letterSpacing: 1.5,
             ),
@@ -340,11 +322,9 @@ class _ResultScreenState extends State<ResultScreen>
         ),
         Container(
           decoration: BoxDecoration(
-            color: const Color(0xFF0A1628).withOpacity(0.8),
+            color: AppColors.bgMid,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: const Color(0xFF1A5FBF).withOpacity(0.3),
-            ),
+            border: Border.all(color: AppColors.border.withValues(alpha: 0.6)),
           ),
           child: ListView.separated(
             shrinkWrap: true,
@@ -352,7 +332,7 @@ class _ResultScreenState extends State<ResultScreen>
             itemCount: r.eventsDetail.length,
             separatorBuilder: (_, __) => Divider(
               height: 1,
-              color: const Color(0xFF1A5FBF).withOpacity(0.2),
+              color: AppColors.border.withValues(alpha: 0.4),
             ),
             itemBuilder: (context, index) {
               final ev = r.eventsDetail[index];
@@ -361,26 +341,24 @@ class _ResultScreenState extends State<ResultScreen>
                     horizontal: 18, vertical: 14),
                 child: Row(
                   children: [
-                    // Index badge
                     Container(
                       width: 28,
                       height: 28,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1A5FBF).withOpacity(0.2),
+                        color: AppColors.primary.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       alignment: Alignment.center,
                       child: Text(
                         '${index + 1}',
                         style: const TextStyle(
-                          color: Color(0xFF4FA3FF),
+                          color: AppColors.primaryLight,
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
                     const SizedBox(width: 14),
-                    // Time range
                     Expanded(
                       child: Text(
                         '${_formatTime(ev.start)}  →  ${_formatTime(ev.end)}',
@@ -388,25 +366,23 @@ class _ResultScreenState extends State<ResultScreen>
                           color: Colors.white,
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          letterSpacing: 0.2,
                         ),
                       ),
                     ),
-                    // Duration chip
                     Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF0D2545),
+                        color: AppColors.bgCard,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: const Color(0xFF1A5FBF).withOpacity(0.3),
+                          color: AppColors.border.withValues(alpha: 0.5),
                         ),
                       ),
                       child: Text(
                         '${ev.duration.toStringAsFixed(1)}s',
                         style: const TextStyle(
-                          color: Color(0xFF4FA3FF),
+                          color: AppColors.primaryLight,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
@@ -422,7 +398,6 @@ class _ResultScreenState extends State<ResultScreen>
     );
   }
 
-  /// Converts raw seconds to a readable mm:ss string.
   String _formatTime(double seconds) {
     final mins = (seconds ~/ 60).toString().padLeft(2, '0');
     final secs = (seconds % 60).toInt().toString().padLeft(2, '0');

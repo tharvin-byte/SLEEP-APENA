@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../theme/app_theme.dart';
 import 'otp_screen.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
@@ -11,247 +12,219 @@ class ForgotPasswordScreen extends StatefulWidget {
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final TextEditingController phoneController = TextEditingController();
+  bool _isSending = false;
+
+  @override
+  void dispose() {
+    phoneController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          // 🔹 Background gradient
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color(0xFF020617),
-                  Color(0xFF020617),
-                  Color(0xFF0A1A2F),
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF020617), Color(0xFF0A1628)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
-
-          // 🔥 FIXED LAYERING
-          SafeArea(
-            child: Stack(
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 28),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Grid background (NON-CLICKABLE)
-                IgnorePointer(
-                  ignoring: true,
-                  child: CustomPaint(
-                    size: Size.infinite,
-                    painter: GridPainter(),
-                  ),
-                ),
+                const SizedBox(height: 16),
 
-                // 🔹 MAIN UI (ON TOP → CLICKABLE)
-                SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 28),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 16),
-
-                        Row(
-                          children: [
-                            IconButton(
-                              icon: const Icon(
-                                Icons.arrow_back_ios_new,
-                                color: Colors.white,
-                              ),
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                            ),
-                            const SizedBox(width: 8),
-                            const Text(
-                              'Forgot Password',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 1.5,
-                              ),
-                            ),
-                          ],
+                // ── Header ──
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: AppDecorations.iconBadge(),
+                        child: const Icon(
+                          Icons.arrow_back_ios_new,
+                          color: AppColors.primaryLight,
+                          size: 18,
                         ),
-
-                        const SizedBox(height: 40),
-
-                        Center(
-                          child: Column(
-                            children: [
-                              Image.asset(
-                                'assets/images/sleeplogo.png',
-                                height: 80,
-                              ),
-                              const SizedBox(height: 12),
-                              const Text(
-                                'SLEEPGUARD',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 26,
-                                  letterSpacing: 4,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              const Text(
-                                'AI Sleep Apnea Monitoring',
-                                style: TextStyle(
-                                  color: Color(0xFF94A3B8),
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        const SizedBox(height: 40),
-
-                        const Text(
-                          'Reset Your Password',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-
-                        const Text(
-                          'Enter your phone number to receive an OTP',
-                          style: TextStyle(color: Color(0xFF9CA3AF)),
-                        ),
-
-                        const SizedBox(height: 28),
-
-                        // 📱 Phone input
-                        TextField(
-                          controller: phoneController,
-                          keyboardType: TextInputType.phone,
-                          style: const TextStyle(color: Colors.white),
-                          decoration: InputDecoration(
-                            prefixIcon: const Icon(Icons.phone, color: Colors.blueAccent),
-                            hintText: 'Enter your phone number',
-                            hintStyle: const TextStyle(color: Colors.grey),
-                            filled: true,
-                            fillColor: const Color(0xFF0F172A),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(14),
-                              borderSide: BorderSide.none,
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 28),
-
-                        // 🔥 Send OTP Button
-                        SizedBox(
-                          width: double.infinity,
-                          height: 55,
-                          child: ElevatedButton(
-                            onPressed: () async {
-                              print("BUTTON CLICKED");
-
-                              String phone = phoneController.text.trim();
-
-                              if (!phone.startsWith('+91')) {
-                                phone = '+91$phone';
-                              }
-
-                              if (phone.length != 13) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Enter valid 10-digit number'),
-                                  ),
-                                );
-                                return;
-                              }
-
-                              print("PHONE: $phone");
-                              print("SENDING OTP");
-
-                              try {
-                                await FirebaseAuth.instance.verifyPhoneNumber(
-                                  phoneNumber: phone,
-
-                                  verificationCompleted: (credential) async {
-                                    print("AUTO VERIFIED");
-                                    await FirebaseAuth.instance
-                                        .signInWithCredential(credential);
-                                  },
-
-                                  verificationFailed: (e) {
-                                    print("ERROR: ${e.code}");
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(e.message ?? 'Error'),
-                                      ),
-                                    );
-                                  },
-
-                                  codeSent: (verificationId, resendToken) {
-                                    print("OTP SENT");
-
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => OtpScreen(
-                                          verificationId: verificationId,
-                                          phoneNumber: phone,
-                                        ),
-                                      ),
-                                    );
-                                  },
-
-                                  codeAutoRetrievalTimeout: (_) {
-                                    print("TIMEOUT");
-                                  },
-                                );
-                              } catch (e) {
-                                print("EXCEPTION: $e");
-                              }
-                            },
-                            child: const Text("Send OTP"),
-                          ),
-                        ),
-
-                        const SizedBox(height: 40),
-                      ],
+                      ),
                     ),
+                    const SizedBox(width: 14),
+                    const Text(
+                      'Forgot Password',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 48),
+
+                // ── Logo ──
+                Center(
+                  child: Column(
+                    children: [
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Container(
+                            width: 110,
+                            height: 110,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: AppColors.primary.withValues(alpha: 0.12),
+                            ),
+                          ),
+                          Image.asset('assets/images/sleeplogo.png',
+                              height: 72),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'SleepGuard',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+
+                const SizedBox(height: 44),
+
+                // ── Body label ──
+                const Text(
+                  'Reset Your Password',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Enter your phone number to receive a one-time code.',
+                  style: TextStyle(color: AppColors.onMuted, fontSize: 13, height: 1.5),
+                ),
+
+                const SizedBox(height: 28),
+
+                // ── Phone input ──
+                TextField(
+                  controller: phoneController,
+                  keyboardType: TextInputType.phone,
+                  style: const TextStyle(color: Colors.white, fontSize: 15),
+                  decoration: const InputDecoration(
+                    prefixIcon: Icon(Icons.phone_outlined),
+                    hintText: 'Phone number (e.g. 9876543210)',
+                  ),
+                ),
+
+                const SizedBox(height: 28),
+
+                // ── Send OTP button ──
+                SizedBox(
+                  width: double.infinity,
+                  height: 54,
+                  child: ElevatedButton(
+                    onPressed: _isSending
+                        ? null
+                        : () async {
+                            print("BUTTON CLICKED");
+
+                            String phone = phoneController.text.trim();
+
+                            if (!phone.startsWith('+91')) {
+                              phone = '+91$phone';
+                            }
+
+                            if (phone.length != 13) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Enter valid 10-digit number'),
+                                ),
+                              );
+                              return;
+                            }
+
+                            setState(() => _isSending = true);
+
+                            print("PHONE: $phone");
+                            print("SENDING OTP");
+
+                            try {
+                              await FirebaseAuth.instance.verifyPhoneNumber(
+                                phoneNumber: phone,
+
+                                verificationCompleted: (credential) async {
+                                  print("AUTO VERIFIED");
+                                  await FirebaseAuth.instance
+                                      .signInWithCredential(credential);
+                                },
+
+                                verificationFailed: (e) {
+                                  print("ERROR: ${e.code}");
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(e.message ?? 'Error'),
+                                    ),
+                                  );
+                                },
+
+                                codeSent: (verificationId, resendToken) {
+                                  print("OTP SENT");
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => OtpScreen(
+                                        verificationId: verificationId,
+                                        phoneNumber: phone,
+                                      ),
+                                    ),
+                                  );
+                                },
+
+                                codeAutoRetrievalTimeout: (_) {
+                                  print("TIMEOUT");
+                                },
+                              );
+                            } catch (e) {
+                              print("EXCEPTION: $e");
+                            } finally {
+                              if (mounted) setState(() => _isSending = false);
+                            }
+                          },
+                    child: _isSending
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text('Send OTP'),
+                  ),
+                ),
+
+                const SizedBox(height: 40),
               ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
-}
-
-// 🔹 Grid Painter
-class GridPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.blue.withOpacity(0.05)
-      ..strokeWidth = 1;
-
-    const spacing = 40.0;
-
-    for (double i = 0; i < size.width; i += spacing) {
-      canvas.drawLine(Offset(i, 0), Offset(i, size.height), paint);
-    }
-
-    for (double i = 0; i < size.height; i += spacing) {
-      canvas.drawLine(Offset(0, i), Offset(size.width, i), paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
