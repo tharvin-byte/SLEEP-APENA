@@ -11,6 +11,7 @@ This project is a **full-stack mobile application** that detects and monitors sl
 - 🧠 CNN-based model for pattern recognition  
 - 📱 Cross-platform mobile app built with Flutter  
 - ☁️ Firebase-powered backend for scalability  
+- ⚡ FastAPI + Uvicorn for backend API and model inference  
 - 🔄 Continuous monitoring and data storage  
 - 👤 Simple and user-friendly interface  
 
@@ -26,6 +27,7 @@ This project is a **full-stack mobile application** that detects and monitors sl
   - Firestore (Database)  
   - Authentication  
   - Cloud Storage  
+- FastAPI + Uvicorn  
 
 ### 🧠 AI / Machine Learning  
 - Convolutional Neural Networks (CNN)  
@@ -43,6 +45,7 @@ This project is a **full-stack mobile application** that detects and monitors sl
 ## 🧰 Tools & Frameworks  
 - Flutter SDK  
 - Firebase Console  
+- FastAPI + Uvicorn  
 - Python (Librosa, NumPy, TensorFlow / PyTorch)  
 - FastAPI (if used for backend APIs)  
 - Git & GitHub  
